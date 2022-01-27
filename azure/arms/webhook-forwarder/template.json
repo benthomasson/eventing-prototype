@@ -1,0 +1,73 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "containerGroups_bender_forwarder_name": {
+            "defaultValue": "bender-forwarder",
+            "type": "String"
+        },
+        "connection_str": {
+            "type": "secureString"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.ContainerInstance/containerGroups",
+            "apiVersion": "2021-09-01",
+            "name": "[parameters('containerGroups_bender_forwarder_name')]",
+            "location": "eastus",
+            "properties": {
+                "sku": "Standard",
+                "containers": [
+                    {
+                        "name": "[parameters('containerGroups_bender_forwarder_name')]",
+                        "properties": {
+                            "image": "quay.io/bthomass/web-hook-bus-forwarder:latest",
+                            "ports": [
+                                {
+                                    "protocol": "TCP",
+                                    "port": 80
+                                },
+                                {
+                                    "protocol": "TCP",
+                                    "port": 443
+                                }
+                            ],
+                            "environmentVariables": [
+                                {
+                                    "name": "QUEUE_NAME",
+                                    "value": "event-queue"
+                                },
+                                {
+                                    "name": "CONNECTION_STR",
+                                    "value": "[parameters('connection_str')]"
+                                }
+                            ],
+                            "resources": {
+                                "requests": {
+                                    "memoryInGB": 1.5,
+                                    "cpu": 1
+                                }
+                            }
+                        }
+                    }
+                ],
+                "initContainers": [],
+                "restartPolicy": "Always",
+                "ipAddress": {
+                    "ports": [
+                        {
+                            "protocol": "TCP",
+                            "port": 8000
+                        }
+                    ],
+                    "ip": "20.124.73.203",
+                    "type": "Public",
+                    "dnsNameLabel": "[parameters('containerGroups_bender_forwarder_name')]"
+                },
+                "osType": "Linux"
+            }
+        }
+    ]
+}
