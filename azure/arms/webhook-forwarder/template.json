@@ -42,6 +42,14 @@
                                 {
                                     "name": "CONNECTION_STR",
                                     "value": "[parameters('connection_str')]"
+                                },
+                                {
+                                    "name": "FORWARDER_NAME",
+                                    "value": "[parameters('containerGroups_bender_forwarder_name')]"
+                                },
+                                {
+                                    "name": "FQDN",
+                                    "value": "[concat(parameters('containerGroups_bender_forwarder_name'), '.', resourceGroup().location, '.azurecontainer.io')]"
                                 }
                             ],
                             "resources": {
@@ -59,10 +67,13 @@
                     "ports": [
                         {
                             "protocol": "TCP",
-                            "port": 8000
+                            "port": 80
+                        },
+                        {
+                            "protocol": "TCP",
+                            "port": 443
                         }
                     ],
-                    "ip": "20.124.73.203",
                     "type": "Public",
                     "dnsNameLabel": "[parameters('containerGroups_bender_forwarder_name')]"
                 },
