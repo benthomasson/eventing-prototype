@@ -1,0 +1,101 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "availabilityZones": {
+            "type": "Array"
+        },
+        "location": {
+            "type": "String"
+        },
+        "containerName": {
+            "type": "String"
+        },
+        "imageType": {
+            "allowedValues": [
+                "Public",
+                "Private"
+            ],
+            "type": "String"
+        },
+        "imageName": {
+            "type": "String"
+        },
+        "osType": {
+            "allowedValues": [
+                "Linux",
+                "Windows"
+            ],
+            "type": "String"
+        },
+        "numberCpuCores": {
+            "type": "String"
+        },
+        "memory": {
+            "type": "String"
+        },
+        "restartPolicy": {
+            "allowedValues": [
+                "OnFailure",
+                "Always",
+                "Never"
+            ],
+            "type": "String"
+        },
+        "connection_str": {
+            "type": "SecureString"
+        },
+        "queue_name": {
+            "type": "String"
+        },
+        "token": {
+            "type": "SecureString"
+        },
+        "commandOverrideArray": {
+            "type": "Array"
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.ContainerInstance/containerGroups",
+            "apiVersion": "2021-09-01",
+            "name": "[parameters('containerName')]",
+            "location": "[parameters('location')]",
+            "tags": {},
+            "zones": "[parameters('availabilityZones')]",
+            "properties": {
+                "containers": [
+                    {
+                        "name": "[parameters('containerName')]",
+                        "properties": {
+                            "image": "[parameters('imageName')]",
+                            "resources": {
+                                "requests": {
+                                    "cpu": "[int(parameters('numberCpuCores'))]",
+                                    "memoryInGB": "[float(parameters('memory'))]"
+                                }
+                            },
+                            "environmentVariables": [
+                                {
+                                    "name": "connection_str",
+                                    "secureValue": "[parameters('connection_str')]"
+                                },
+                                {
+                                    "name": "queue_name",
+                                    "value": "[parameters('queue_name')]"
+                                },
+                                {
+                                    "name": "token",
+                                    "secureValue": "[parameters('token')]"
+                                }
+                            ],
+                            "command": "[parameters('commandOverrideArray')]"
+                        }
+                    }
+                ],
+                "restartPolicy": "[parameters('restartPolicy')]",
+                "osType": "[parameters('osType')]"
+            }
+        }
+    ]
+}

@@ -1,0 +1,52 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "availabilityZones": {
+            "value": []
+        },
+        "location": {
+            "value": "eastus"
+        },
+        "containerName": {
+            "value": "events-demo"
+        },
+        "imageType": {
+            "value": "Public"
+        },
+        "imageName": {
+            "value": "quay.io/bthomass/events-demo:latest"
+        },
+        "osType": {
+            "value": "Linux"
+        },
+        "numberCpuCores": {
+            "value": "1"
+        },
+        "memory": {
+            "value": "1.5"
+        },
+        "restartPolicy": {
+            "value": "OnFailure"
+        },
+        "connection_str": {
+            "value": null
+        },
+        "queue_name": {
+            "value": "event-queue"
+        },
+        "token": {
+            "value": null
+        },
+        "commandOverrideArray": {
+            "value": [
+                "ftl-events",
+                "rules.yml",
+                "-i",
+                "inventory.yml",
+                "--env-vars",
+                "webhook,connection_str,queue_name,token"
+            ]
+        }
+    }
+}
