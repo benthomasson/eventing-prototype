@@ -1,0 +1,81 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "containerGroups_bender_ci_cd": {
+            "defaultValue": "bender-ci-cd",
+            "type": "String"
+        },
+        "gh_user": {
+            "type": "string"
+        },
+        "gh_token": {
+            "type": "secureString"
+        },
+        "repo_name": {
+            "type": "string"
+        },
+        "queue_name": {
+            "type": "string"
+        },
+        "connection_str": {
+            "type": "secureString"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.ContainerInstance/containerGroups",
+            "apiVersion": "2021-09-01",
+            "name": "[parameters('containerGroups_bender_ci_cd')]",
+            "location": "eastus",
+            "properties": {
+                "sku": "Standard",
+                "containers": [
+                    {
+                        "name": "[parameters('containerGroups_bender_ci_cd')]",
+                        "properties": {
+                            "image": "quay.io/bthomass/events-demo-ci-cd:latest",
+                            "command": ["ansible-events",
+                                        "github-ci-cd-rules.yml",
+                                        "-i", "inventory.yml",
+                                        "-S", "sources",
+                                        "--env-vars", "connection_str,queue_name,repo_name,gh_user,gh_token"],
+                            "environmentVariables": [
+                                {
+                                    "name": "queue_name",
+                                    "value": "[parameters('queue_name')]"
+                                },
+                                {
+                                    "name": "connection_str",
+                                    "secureValue": "[parameters('connection_str')]"
+                                },
+                                {
+                                    "name": "gh_user",
+                                    "value": "[parameters('gh_user')]"
+                                },
+                                {
+                                    "name": "gh_token",
+                                    "secureValue": "[parameters('gh_token')]"
+                                },
+                                {
+                                    "name": "repo_name",
+                                    "value": "[parameters('repo_name')]"
+                                }
+                            ],
+                            "resources": {
+                                "requests": {
+                                    "memoryInGB": 1.5,
+                                    "cpu": 1
+                                }
+                            }
+                        }
+                    }
+                ],
+                "initContainers": [],
+                "restartPolicy": "Always",
+                "osType": "Linux"
+            }
+        }
+    ]
+}
