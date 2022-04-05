@@ -41,7 +41,7 @@
                                 },
                                 {
                                     "name": "CONNECTION_STR",
-                                    "value": "[parameters('connection_str')]"
+                                    "secureValue": "[parameters('connection_str')]"
                                 },
                                 {
                                     "name": "FORWARDER_NAME",

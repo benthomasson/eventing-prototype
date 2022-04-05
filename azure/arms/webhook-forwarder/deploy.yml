@@ -1,0 +1,73 @@
+---
+- name: Deploy forwarder
+  gather_facts: False
+  hosts: localhost
+  tasks:
+    - name: Destroy Azure Deployment
+      azure_rm_deployment:
+        resource_group: bender
+        location: eastus
+        name: bender-forwarder10
+        state: absent
+    - name: Create Azure Deployment
+      azure_rm_deployment:
+        resource_group: bender
+        location: eastus
+        name: bender-forwarder10
+        template:
+          $schema: https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#
+          contentVersion: 1.0.0.0
+          parameters:
+            connection_str:
+              type: secureString
+            containerGroups_bender_forwarder_name:
+              defaultValue: bender-forwarder
+              type: String
+          resources:
+          - apiVersion: '2021-09-01'
+            location: eastus
+            name: '[parameters(''containerGroups_bender_forwarder_name'')]'
+            properties:
+              containers:
+              - name: '[parameters(''containerGroups_bender_forwarder_name'')]'
+                properties:
+                  environmentVariables:
+                  - name: QUEUE_NAME
+                    value: event-queue
+                  - name: CONNECTION_STR
+                    secureValue: '[parameters(''connection_str'')]'
+                  - name: FORWARDER_NAME
+                    value: '[parameters(''containerGroups_bender_forwarder_name'')]'
+                  - name: FQDN
+                    value: '[concat(parameters(''containerGroups_bender_forwarder_name''), ''.'',
+                      resourceGroup().location, ''.azurecontainer.io'')]'
+                  image: quay.io/bthomass/web-hook-bus-forwarder:latest
+                  ports:
+                  - port: 80
+                    protocol: TCP
+                  - port: 443
+                    protocol: TCP
+                  resources:
+                    requests:
+                      cpu: 1
+                      memoryInGB: 1.5
+              initContainers: []
+              ipAddress:
+                dnsNameLabel: '[parameters(''containerGroups_bender_forwarder_name'')]'
+                ports:
+                - port: 80
+                  protocol: TCP
+                - port: 443
+                  protocol: TCP
+                type: Public
+              osType: Linux
+              restartPolicy: Always
+              sku: Standard
+            type: Microsoft.ContainerInstance/containerGroups
+          variables: {}
+        parameters:
+          connection_str:
+            value: "{{connection_str}}"
+          containerGroups_bender_forwarder_name:
+            value: bender-forwarder10
+

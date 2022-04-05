@@ -1,0 +1,17 @@
+---
+- name: Automatic Remediation of a webserver
+  hosts: localhost
+  sources:
+    - name: check web server
+      url_check:
+        urls:
+          - https://bender-forwarder10.eastus.azurecontainer.io/status
+        delay: 10
+  rules:
+    - name: If webserver is down remediate the problem
+      condition:
+        all:
+          - events.url_down << event.url_check.status == "down"
+      action:
+        debug:
+...
