@@ -1,5 +1,5 @@
 ---
-- name: Deploy forwarder
+- name: Recover forwarder
   gather_facts: False
   hosts: localhost
   tasks:
@@ -70,8 +70,24 @@
             value: "{{connection_str}}"
           containerGroups_bender_forwarder_name:
             value: bender-forwarder10
-    - name: Set verify state
+    - name: "wait for server to come up"
+      uri:
+        url: "{{url}}"
+        status_code: 200
+        validate_certs: no
+      register: result
+      until: result.status == 200
+      retries: 60
+      delay: 10
+      ignore_errors: true
+    - name: Set failed state
       set_fact:
         cacheable: true
-        state: verify
+        state: unrecoverable
+      when: result.status != 200
+    - name: Set running state
+      set_fact:
+        cacheable: true
+        state: running
+      when: result.status == 200
 

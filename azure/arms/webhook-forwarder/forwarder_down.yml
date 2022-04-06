@@ -5,13 +5,45 @@
     - name: check web server
       url_check:
         urls:
-          - https://bender-forwarder10.eastus.azurecontainer.io/status
+          - "{{url}}"
         delay: 10
+    - name: initial state
+      file:
+        files:
+          - initial_state.yml
+          - initial_time.yml
   rules:
     - name: If webserver is down remediate the problem
       condition:
         all:
-          - events.url_down << event.url_check.status == "down"
+          - events.current_time << event.time is defined
+          - event.state == "running"
+          - events.url_down << event.url_check.status == "down" and event.meta.time > events.current_time.time
       action:
-        debug:
+        run_playbook:
+          name: deploy.yml
+          post_events: true
+    - name: Verify the deployment
+      condition:
+        all:
+          - event.state == "verify"
+      action:
+        run_playbook:
+          name: verify.yml
+          post_events: true
+    - name: Recover the failed deployment
+      condition:
+        all:
+          - event.state == "failed"
+      action:
+        run_playbook:
+          name: recover.yml
+          post_events: true
+    - name: Recover the failed deployment
+      condition:
+        all:
+          - event.state == "unrecoverable"
+      action:
+        run_playbook:
+          name: help.yml
 ...

@@ -37,7 +37,7 @@
                             "environmentVariables": [
                                 {
                                     "name": "QUEUE_NAME",
-                                    "value": "event-queue"
+                                    "value": "queue"
                                 },
                                 {
                                     "name": "CONNECTION_STR",

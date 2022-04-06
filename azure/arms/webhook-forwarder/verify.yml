@@ -1,0 +1,27 @@
+---
+- name: Deploy forwarder
+  gather_facts: False
+  hosts: localhost
+  tasks:
+    - name: "wait for server to come up"
+      uri:
+        url: "{{url}}"
+        status_code: 200
+        validate_certs: no
+      register: result
+      until: result.status == 200
+      retries: 60
+      delay: 10
+      ignore_errors: true
+    - name: Set failed state
+      set_fact:
+        cacheable: true
+        state: failed
+      when: result.status != 200
+    - name: Set running state
+      set_fact:
+        cacheable: true
+        state: running
+      when: result.status == 200
+
+

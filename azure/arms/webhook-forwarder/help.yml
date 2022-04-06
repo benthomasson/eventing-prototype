@@ -1,0 +1,8 @@
+---
+- name: Deploy forwarder
+  gather_facts: False
+  hosts: localhost
+  tasks:
+    - debug:
+        msg: "help me!"
+
