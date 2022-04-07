@@ -1,6 +1,6 @@
 import requests
 import time
-from requests.exceptions import ConnectionError
+from requests.exceptions import ConnectionError, ReadTimeout
 
 
 def main(queue, args):
@@ -27,13 +27,14 @@ def main(queue, args):
                     )
                 )
 
-            except ConnectionError:
+            except (ConnectionError, ReadTimeout) as e:
                 queue.put(
                     dict(
                         url_check=dict(url=url, status="down", status_code=None),
                         meta=dict(time=time.time()),
                     )
                 )
+
         time.sleep(delay)
 
 

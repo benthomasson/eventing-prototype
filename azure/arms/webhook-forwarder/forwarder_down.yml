@@ -16,9 +16,9 @@
     - name: If webserver is down remediate the problem
       condition:
         all:
-          - events.current_time << event.time is defined
+          - events.epoch << event.time is defined
           - event.state == "running"
-          - events.url_down << event.url_check.status == "down" and event.meta.time > events.current_time.time
+          - events.url_down << event.url_check.status == "down" and event.meta.time > events.epoch.time
       action:
         run_playbook:
           name: deploy.yml
